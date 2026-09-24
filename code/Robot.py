@@ -1,4 +1,6 @@
 import numpy as np
+from math import cos as c
+from math import sin as s
 
 class Robot:
     """
@@ -54,8 +56,52 @@ class Robot:
         
         # TODO:  FILL IN 3x3 HOMOGENEOUS TRANSFORM FOR n + 1 FRAMES
         # You'll need to implement the forward kinematics calculation here
+
+
         
-        
+        # find frame 0
+        # frames[0, 0, 0] = 1
+        # frames[1, 1, 0] = 1
+        # frames[2, 2, 0] = 1
+
+        # find frame 1
+        frames[0, 0, 0] = c(thetas[0, 0])
+        frames[0, 1, 0] = -s(thetas[0, 0])
+        frames[1, 0, 0] = s(thetas[0, 0])
+        frames[1, 1, 0] = c(thetas[0, 0])
+        frames[2, 2, 0] = 1
+
+
+        for i in range(1, n): # skips over frame 0
+            curr_frame = np.eye(3) # define temporary frame for dot multiplying
+
+            # angles
+            curr_frame[0, 0] = c(thetas[i, 0])
+            curr_frame[0, 1] = -s(thetas[i, 0])
+            curr_frame[1, 0] = s(thetas[i, 0])
+            curr_frame[1, 1] = c(thetas[i, 0])
+
+            # coordinates
+            curr_frame[0, 2] = self.link_lengths[i-1, 0]
+
+            curr_frame[2, 2] = 1
+
+            frames[:, :, i] = np.dot(frames[:,:,i-1], curr_frame)
+
+        # find endeff frame
+        temp_endeff_frame = np.eye(3)
+        temp_endeff_frame[0, 2] = self.link_lengths[-1, 0]
+
+        frames[:, :, n] = np.dot(frames[:,:,n-1], temp_endeff_frame)
+
+        # print(f"dof: {n}")
+        # print()
+        # print(f"thetas: {thetas}")
+        # print()
+        # print(f"link lengths: {self.link_lengths}")
+        # print()
+        # print(f"endeff frame: {frames[:,:,-1]}")
+        # print()
         return frames
 
     def fk(self, thetas):
