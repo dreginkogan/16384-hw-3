@@ -1,9 +1,11 @@
 import numpy as np
+from math import cos as c
+from math import sin as s
 
 from robot_info import robot_info
 
 
-def forward_kinematics_RR(theta1, theta2):
+def forward_kinematics_RR(t1, t2):
     """
     Returns the forward kinematics for an RR robot given the joint angle positions in radians.
     """
@@ -11,8 +13,14 @@ def forward_kinematics_RR(theta1, theta2):
 
     # ============ BEGIN STUDENT SECTION ==============
     # To-Do 1: Compute the homogeneous transformation matrices H_2_0 and H_3_0
-    H_2_0 = np.eye(3)
-    H_3_0 = np.eye(3)
+
+    H_2_0 = np.array([[c(t1+t2), -s(t1+t2), c(t1)*l1],
+                      [s(t1+t2),  c(t1+t2), s(t1)*l1],
+                      [0       ,  0       , 1]])
+
+    H_3_0 = np.array([[c(t1+t2), -s(t1+t2), c(t1)*l1 + c(t1+t2)*l2],
+                      [s(t1+t2),  c(t1+t2), s(t1)*l1 + s(t1+t2)*l2],
+                      [0       ,  0       , 1]])
     # ============ END STUDENT SECTION ==============
 
     return {
@@ -21,7 +29,7 @@ def forward_kinematics_RR(theta1, theta2):
     }
 
 
-def jacobian_RR(theta1, theta2):
+def jacobian_RR(t1, t2):
     """
     Returns the end-effector Jacobian of an RR robot given the joint angle positions
     in radians.
@@ -30,7 +38,8 @@ def jacobian_RR(theta1, theta2):
 
     # ============ BEGIN STUDENT SECTION ==============
     # To-Do 2: Compute the Jacobian matrix J
-    J = np.zeros((2, 2))
+    J = np.array([[-s(t1)*l1 - s(t1+t2)*l2, -s(t1+t2)*l2],
+                  [ c(t1)*l1 + c(t1+t2)*l2, c(t1+t2)*l2]])
     # ============ END STUDENT SECTION ==============
 
     return J
